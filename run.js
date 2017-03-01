@@ -29,6 +29,8 @@ function draw() {
     background(0, 0, 15);
 
     updateBuildings();
+    drawBuildings();
+
     runner.update(buildings);
     runner.draw();
 }
@@ -51,19 +53,30 @@ function generateBuilding() {
 }
 
 /**
- * Check if any of the buildings have moved off the left hand side of the screen.  If so, they can be removed and replaced with new buildings.
+ * Draw the buildings that appear on the screen.
+ */
+function drawBuildings() {
+    for (var i = buildings.length - 1; i >= 0; i--) {
+        var building = buildings[i];
+        if (building.position.x < width)
+            building.draw();
+    }
+}
+
+/**
+ * Check if any of the buildings have moved off the left hand side of the screen.
+ * If so, they can be removed and replaced with new buildings.
  */
 function updateBuildings() {
     for (var i = buildings.length - 1; i >= 0; i--) {
         var building = buildings[i];
 
+        // Building is gone, remove it.
         if (building.position.x + building.w < 0) {
-            // Building is gone, remove it.
             buildings.splice(i, 1);
         }
         else {
             building.update();
-            building.draw();
         }
     }
 

@@ -18,7 +18,7 @@ function Building(w, h, x) {
 
     // Each building has a random window size and number of windows.
     this.windowColors = [];
-    this.windowSize = random(40, 60);
+    this.windowSize = random(30, 50);
     this.windowCols = floor(this.w / this.windowSize) - 4;
     this.windowRows = floor(this.h / this.windowSize) - 2;
 

@@ -22,6 +22,9 @@ function Runner(x, y, w, h) {
     this.position = createVector(x, y);
     this.velocity = createVector(0, 0);
 
+    this.w = w;
+    this.h = h;
+
     // The total number of jumps the runner has remaining
     this.totalJumps = maxJumps;
 
@@ -36,12 +39,23 @@ function Runner(x, y, w, h) {
         for (var i = 0; i < buildings.length; i++) {
             var building = buildings[i];
 
-            // Check if the runner is within the bounds of the building and 
+            // Check if the runner is within the bounds of the building and
             // if they are within 15 pixels of the top of the building.  If so,
             // they have 'landed' on this building.
-            if (this.position.x + w >= building.position.x && 
-                this.position.x <= building.position.x + building.w && 
-                abs(this.position.y + h - building.position.y) < 15) {
+            if (this.position.x + w >= building.position.x &&
+                this.position.x <= building.position.x + building.w &&
+                abs(this.position.y + this.h - building.position.y) < 15) {
+                    return building;
+            }
+        }
+    };
+
+    this.hitSideOfBuilding = function(buildings) {
+        for (var i = 0; i < buildings.length; i++) {
+            var building = buildings[i];
+
+            if (abs(this.position.x + w - building.position.x) < 15 &&
+                this.position.y + this.h > building.position.y) {
                     return building;
             }
         }
@@ -54,7 +68,7 @@ function Runner(x, y, w, h) {
         fill(150);
         stroke(60);
         strokeWeight(4);
-        rect(this.position.x, this.position.y, w, h);
+        rect(this.position.x, this.position.y, this.w, this.h);
     };
 
     /**
@@ -75,22 +89,29 @@ function Runner(x, y, w, h) {
      */
     this.update = function(buildings) {
 
-        // Update the y position of the runner according to it's y velocity.
+        // Update the x and y position of the runner according to it's x and y velocity.
+        this.position.x += this.velocity.x;
         this.position.y += this.velocity.y;
 
         // Update the y velocity according to gravity.  This enables the runner to jump or fall.
-        // 
-        // Restrict the velocity in the downwards direction to not be greater than the 
+        //
+        // Restrict the velocity in the downwards direction to not be greater than the
         // maximum velocity.  This makes it easier to detect collisions with the tops of the buildings.
         this.velocity.y = min(this.velocity.y + gravity, maxVelocity);
 
         // Check if we've landed on a building.  If so, stop falling by making the y velocity 0 and snap
         // the runner's position to the top of the building.  Also, refresh the total number of jumps.
-        var building = this.landedOnBuilding(buildings);
-        if (building) {
-            this.position.y = building.position.y - h;
+        var landedBuilding = this.landedOnBuilding(buildings);
+        if (landedBuilding) {
+            this.position.y = landedBuilding.position.y - this.h;
             this.totalJumps = maxJumps;
             this.velocity.y = 0;
+        }
+
+        // Check if we hit the side of the building.  If so, the runner shouldn't move forward.
+        var hitBuilding = this.hitSideOfBuilding(buildings);
+        if (hitBuilding) {
+            this.velocity.x = buildingSpeed * -1;
         }
     };
 }
